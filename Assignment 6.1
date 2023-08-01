@@ -1,0 +1,118 @@
+Assignment 6.1
+
+Description :- 
+
+Create a schema and ER diagram for cricket information web-app using draw.io (or any other tool) and submit the diagram
+Requirements:
+N countries, M players per country, X stadiums, every match that takes place creates score for countries and players which our analysts need to analyse.
+Store data in such a way that most of the analytics are made possible
+Write SQL or Mongo queries for following reports
+Player’s strike rate -> Total Runs divided by matched played
+Player’s avg run-rate -> Total Runs divided by overs played
+Player’s Top 3 matches according to strike rate
+Couple of teams who have played most matches with each-other
+Given two teams as input, success rate of Team1 against Team2
+Create 2 more queries on your own
+
+Soluation 
+
+Schema :- 
+
+CREATE TABLE Country (
+  CountryID  INT  PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Player (
+  PlayerID INT PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL,
+  CountryID INT NOT NULL,
+  MatchesPlayed INT,
+  TotalRuns INT,
+  OversPlayed INT,
+  FOREIGN KEY (CountryID) REFERENCES Country (CountryID)
+);
+
+CREATE TABLE Stadium (
+  StadiumID INT PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Match (
+  MatchID INT PRIMARY KEY,
+  StadiumID INT NOT NULL,
+  Date DATE NOT NULL,
+  Team1 VARCHAR(100) NOT NULL,
+  Team2 VARCHAR(100) NOT NULL,
+  Result VARCHAR(100),
+  FOREIGN KEY (StadiumID) REFERENCES Stadium (StadiumID)
+);
+
+CREATE TABLE PlayerScore (
+  ScoreID INT PRIMARY KEY,
+  MatchID INT NOT NULL,
+  PlayerID INT NOT NULL,
+  RunsScored INT,
+  OversBowled INT,
+  FOREIGN KEY (MatchID) REFERENCES Match (MatchID),
+  FOREIGN KEY (PlayerID) REFERENCES Player (PlayerID)
+);
+
+--------------------------------------------------------------------
+
+ER diagram :- 
+
+---------------------------------------------------------------------
+Write SQL queries for following reports
+
+1. Player’s strike rate -> Total Runs divided by matched played
+
+SELECT PlayerID, TotalRuns / MatchesPlayed AS StrikeRate FROM Player;
+
+2. Player’s avg run-rate -> Total Runs divided by overs played
+
+SELECT PlayerID, TotalRuns / OversPlayed AS AvgRunRate FROM Player;
+
+3. Player’s Top 3 matches according to strike rate
+
+SELECT PlayerID, MatchID, RunsScored / OversBowled AS StrikeRate FROM PlayerScore
+ORDER BY StrikeRate DESC LIMIT 3;
+
+4. Couple of teams who have played most matches with each-other
+
+SELECT Team1, Team2, COUNT(*) AS MatchesPlayed FROM Match
+GROUP BY Team1, Team2
+ORDER BY MatchesPlayed DESC LIMIT 2;
+
+5. Given two teams as input, success rate of Team1 against Team2
+
+SELECT Team1, Team2, 
+       SUM(CASE WHEN Result = 'Win' AND Team1 = 'Team1' THEN 1 ELSE 0 END) / 
+       COUNT(CASE WHEN Team1 = 'Team1' THEN 1 ELSE 0 END) AS SuccessRate
+FROM Match
+WHERE (Team1 = 'Team1' AND Team2 = 'Team2') OR (Team1 = 'Team2' AND Team2 = 'Team1')
+GROUP BY Team1, Team2;
+
+6. Extra - Top 5 Countries with the most number of players
+
+SELECT CountryID, Name, COUNT(*) AS TotalPlayers
+FROM Player p
+JOIN Country c ON p.CountryID = c.CountryID
+GROUP BY CountryID, Name
+ORDER BY TotalPlayers DESC
+LIMIT 5;
+
+7. Extra - Total runs scored in each stadium
+
+SELECT StadiumID, Name, SUM(RunsScored) AS TotalRunsScored
+FROM Match m
+JOIN PlayerScore ps ON m.MatchID = ps.MatchID
+GROUP BY StadiumID, Name;
+
+-----------------------------------------------------------
+End of the Assignment 6.1.
+
+
+
+
+
