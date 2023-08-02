@@ -1,0 +1,78 @@
+Design a Doctor's Database
+
+Doctor's Clinic Entity RelationShip Diagram - 
+
+Schema:- 
+
+CREATE TABLE Patient (
+  PatientID INT PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL,
+  ContactInfo VARCHAR(100)
+  -- Additional patient-related columns as needed
+);
+
+CREATE TABLE Doctor (
+  DoctorID INT PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL,
+  Specialization VARCHAR(100)
+  -- Additional doctor-related columns as needed
+);
+
+CREATE TABLE Clinic (
+  ClinicID INT PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL,
+  Address VARCHAR(200)
+  -- Additional clinic-related columns as needed
+);
+
+CREATE TABLE TimeSlot (
+  TimeSlotID INT PRIMARY KEY,
+  StartTime TIME NOT NULL,
+  EndTime TIME NOT NULL,
+  ClinicID INT NOT NULL,
+  DoctorID INT NOT NULL,
+  IsAvailable BOOLEAN NOT NULL,
+  FOREIGN KEY (ClinicID) REFERENCES Clinic (ClinicID),
+  FOREIGN KEY (DoctorID) REFERENCES Doctor (DoctorID)
+);
+
+CREATE TABLE Appointment (
+  AppointmentID INT PRIMARY KEY,
+  PatientID INT NOT NULL,
+  TimeSlotID INT NOT NULL,
+  AppointmentDateTime DATETIME NOT NULL,
+  FOREIGN KEY (PatientID) REFERENCES Patient (PatientID),
+  FOREIGN KEY (TimeSlotID) REFERENCES TimeSlot (TimeSlotID)
+);
+
+CREATE TABLE Doctor_Clinic (
+  DoctorID INT NOT NULL,
+  ClinicID INT NOT NULL,
+  PRIMARY KEY (DoctorID, ClinicID),
+  FOREIGN KEY (DoctorID) REFERENCES Doctor (DoctorID),
+  FOREIGN KEY (ClinicID) REFERENCES Clinic (ClinicID)
+);
+
+
+Optimization Approach :-
+
+Doctor Search Optimization:
+By using the TimeSlot table, we can efficiently store and manage the availability of doctors in different clinics.
+The IsAvailable column can be used to quickly filter available time slots for each doctor, allowing for fast doctor search queries.
+By having a separate Doctor_Clinic table, we can store the mapping of doctors to multiple clinics efficiently.
+This avoids duplicating doctor information across multiple records and optimizes storage.
+Indexes can be added on relevant columns, such as DoctorID and ClinicID, to further speed up search queries.
+
+
+Appointment Booking:
+The Appointment table allows patients to book appointments at specific time slots. 
+The AppointmentDateTime column stores the exact date and time of the appointment.
+By associating PatientID with the appointment, we can track appointments booked by each patient,
+including appointments at different clinics and with different doctors.
+With this database design, doctor search and appointment booking can be efficiently managed, 
+allowing patients to book appointments at their preferred clinics and with specific doctors based on available time slots. 
+The database schema and optimizations ensure that the system can handle heavy doctor search usage while providing a seamless 
+user experience for patients and clinic staff.
+
+
+
