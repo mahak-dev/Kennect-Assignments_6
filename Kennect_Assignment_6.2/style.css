@@ -1,0 +1,14 @@
+
+.themable {
+      margin: 20px;
+      padding: 10px;
+  }
+  .light-theme {
+      background-color: white;
+      color: rgb(4, 3, 3);
+  }
+  .dark-theme {
+      background-color: black;
+      color: white;
+  }
+  
